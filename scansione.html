@@ -954,6 +954,8 @@
                 
                 
                 counter = counter + 1;
+                (PiantagioneSelezionata =="Beta" && counter == 1000) ? simulaFailSafe():null;
+
                 counter == 2500 ? changeBattery():null;
                 counter == 4700 ? changeBattery():null;
                 counter >= steps ? returnHomeEndMission():null;
@@ -971,7 +973,10 @@
             
             });
          
-            
+            function simulaFailSafe(){
+                alert("Errore generico, attivo modalità return home");
+                returnHomeEndMission();
+            }
             
         $("#nextScan").click(function(){
             
