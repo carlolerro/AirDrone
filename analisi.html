@@ -1,0 +1,1032 @@
+
+<head>
+   
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script src="https://cdn.airmap.io/js/contextual-airspace/v1.0/airmap.contextual-airspace-plugin.min.js" async=false defer=false></script>       
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.0/mapbox-gl.js"></script>
+    <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.0/mapbox-gl.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.css" rel="stylesheet" />
+    
+    <!-- Bootstrap CSS CDN -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <!-- Our Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Scrollbar Custom CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
+   
+
+    <!-- Font Awesome JS -->
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+        <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v3.0.11/turf.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.9/mapbox-gl-draw.js"></script>
+    <link
+    rel="stylesheet"
+    href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.9/mapbox-gl-draw.css"
+    type="text/css"
+    />
+    <style>
+        #info {
+        display: block;
+        position: relative;
+        margin: 0px auto;
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 3px;
+        font-size: 12px;
+        text-align: center;
+        color: #222;
+        background: #fff;
+}
+        p.analisi{
+            width: 10vw;
+            height: 65px;
+            background-color: whitesmoke;
+            color: green;
+            border-radius: 20px;
+            padding-top: 12px;
+            text-align: center;
+            
+        }
+        p.analisi.active{
+            visibility: hidden;
+        }
+        input{
+            width: 15rem;
+            padding-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="modal" id="modalMissione" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" style="color:#049372;">Dati missione</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span id="close" aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="input"> <input id="altFailSafe" type="text" placeholder="Min. Altitudine Fail Safe"></div>
+
+      </div>
+      <div class="modal-footer">
+        <div class=" row justify-content-end "> 
+            <div id="modalMissioneAvanti" onclick="riepilogo();" class="input invia avanti "><p class="launch">Avanti</p></div>
+           
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modalRiepilogo" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" style="color:#049372;">Riepilogo Missione</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span id="close" aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body bodyRiepilogo">
+            
+        </div>
+        <div class="modal-footer">
+          <div class=" row justify-content-end "> 
+              <div id="modalMissioneAvvia" class="input invia avanti "><p class="launch">Avvia</p></div>
+             
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal" id="modalAnnullaMissione" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        
+        <div class="modal-body">
+          <p style=color:red;text-align:center;margin-top:10%;>Sicuro di voler annullare la missione?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="buttonSi" onclick="returnHome();">Si</button>
+          <button type="button" class="buttonNo" data-dismiss="modal">No</button>
+        </div>
+      </div>
+    </div>
+  </div>
+ <div class="container-fluid">
+        <div class ="row">
+            <!-- Sidebar  -->
+            
+            <nav id="sidebar">
+                <div class="row justify-content-end">
+                    <div class="m_button active">
+                        <span class ="linee active"></span>
+                        <span class ="linee active" ></span>
+                        <span class ="linee active"></span>
+                      </div>
+                </div>
+            <div class ="row justify-content-center">
+                
+                <div id="menu"class = "box">
+                    <div class ="w-100 p-3"></div>
+                    <div class ="w-100 p-3"></div>
+                    <div class ="row justify-content-center"><a href="" class = "scelte"><p>Home</p> </a></div>
+                    <div class ="w-100 p-3"></div>
+                    <div class ="row justify-content-center"><a href="./piantagioni.html" class = "scelte"><p >Piantagioni</p> </a></div>
+                    <div class ="w-100 p-3"></div>
+                    <div class ="row justify-content-center"><a href="./scansione.html" class = "scelte"><p>Avvia nuova scansione</p> </a></div>
+                    <div class ="w-100 p-3"></div>
+                    <div class ="row justify-content-center"><a href="" class = "scelte"><p>Avvia nuovo intervento</p></a></div>
+                    <div class ="w-100 p-3"></div>
+                    <div class ="row justify-content-center"><a href="./analisi.html" class = "scelte"><p class="analisi">Storico analisi</p> </a></div>
+                    <div class ="w-100 p-3"></div>
+                    <div class ="row justify-content-center"><a href="" class = "scelte"><p>Stato droni</p> </a></div>
+                    <div class ="w-100 p-3"></div>
+                    
+
+                </div>
+            </div>
+            </nav>
+            
+            
+            
+            <!--Central menu-->
+            <div id ="content">
+                <div class ="row">
+                <div class = "col">
+                    <div id="central">
+                        <!--titolo-->
+                        <div class ="row justify-content-center">
+                               <p class="central p"> Storico Analisi</p>
+                        </div>
+
+                        
+                        <!--contenuto-->
+                        <div class="w-100 p-3"></div>
+                        <!--generazione automatica della lista delle piantagioni tramite node-->
+                        <!--riga 1-->
+                        <div class ="container-fluid contenutoCentral">
+                            
+                          
+                        </div> 
+                        <div class =" row justify-content-end iconsPlus">
+                            <div id="nextScan" class="input invia avanti ">
+                               <p class="avanti">Avanti</p>
+                                                          </div>
+                            
+                        </div>
+                     </div>
+                </div>
+                <div class = "col">
+                    
+                    <div id="map"class="map">
+                       
+                    </div>
+                </div>
+                </div>  
+            </div>  
+        </div>
+    </div>
+   
+
+        
+     </div>
+
+    <!-- jQuery CDN - Slim version (=without AJAX) -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <!-- Popper.JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+    <!-- jQuery Custom Scroller CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script src="https://cdn.airmap.io/js/contextual-airspace/1.0.0/airmap.contextual-airspace-plugin.min.js"></script>
+
+
+    <script type="text/javascript">
+    
+        //waypoint return home
+        homeScenario1=[14.79100610544424, 40.775173986808255];
+        homeScenario2=[14.807678447089017, 40.76096189094568];
+        //waypoints
+        point1=[14.808978065804382,  40.761382117966605]
+        point2=[14.81388099509951,  40.7621049053063]
+        point3=[14.818389057605515,  40.76332614881488]
+        point4=[14.817500607330686,  40.764971053582485]
+        point5=[14.813551939442391,  40.76429814291575]
+        point6=[14.808912254673317,  40.76335107191795]
+        point7=[14.807859276569019,  40.76559411293874]
+        point8=[14.811676322195268,  40.7659430236269]
+        point9=[14.815361745557482,  40.76674052689356]
+        PointsScenario1=[point1,point2,point3,point4,point5,point6, point7, point8, point9]
+        
+        PointsScenario2=[
+            [ 14.790981934557351,  40.775805433146076],
+            [ 14.790116878088526,  40.77619438700526],
+            [14.78935995367766,  40.776508277932436],
+            [14.789432041717333,  40.776917698651886],
+            [14.790477318283735,  40.77660380965915],
+            [14.79127929771957,  40.77636498008391],
+            [14.791540616860374,  40.77685628570458],
+            [14.790801714459718,  40.77717017350437],
+            [ 14.78991863598074,  40.77753182500075],
+            ]
+        //schermata iniziale piantagioni
+        session = window.sessionStorage;
+        storage = window.localStorage;
+        drone_1= ["drone 1","attivo",100]
+        drone_2= ["drone 2","attivo",76]
+        drone_3= ["drone 3","inattivo",51]
+        drone_4= ["drone 4","inattivo",26]
+        
+        droni=[drone_1,drone_2,drone_3,drone_4]
+        session.setItem("droni",JSON.stringify(droni))
+       
+         
+    
+   
+   
+   
+        //stampa piantagioni
+        if(storage.piantagioni){
+            piantagioni = JSON.parse(storage.getItem("piantagioni"));
+            
+            lung = piantagioni.length
+            i=0
+           while(lung>0){
+                
+                if(lung != 1){
+                   
+                    $(".contenutoCentral").append(
+                     " <div class =\"row rjustify-content-center\">"+
+                                "<div class=\"col colonna\">"+
+                                   " <a >"+
+                                       " <div id=\""+piantagioni[i][0]+"\" class =\"classPiantagioni box mini\">"+
+                                           " <p>"+piantagioni[i][0]+"</p>"+
+                                        "</div>"+
+                                     "</a>"+
+                                "</div>"+
+                                "<div class=\"col colonna\">"+
+                                   " <a >"+
+                                       " <div id=\""+piantagioni[i+1][0]+"\" class =\"classPiantagioni box mini\">"+
+                                          " <p>"+piantagioni[i+1][0]+"</p>"+
+                                        "</div>"+
+                                     "</a>"+
+                                "</div></div>"
+
+                        );
+                       
+                    
+                    i=i+2
+                    lung=lung-2                                
+                   
+                }else{
+                    
+                    
+                    console.log(piantagioni[i])
+                    $(".contenutoCentral").append(
+                      " <div class =\"row rjustify-content-center\">"+
+                                "<div class=\"col colonna\">"+
+                                   " <a >"+
+                                       " <div id=\""+piantagioni[i][0]+"\" class =\"classPiantagioni box mini\">"+
+                                           " <p>"+piantagioni[i][0]+"</p>"+
+                                        "</div>"+
+                                     "</a>"+
+                                "</div>"
+
+
+            
+                );
+                i=i+1
+                lung=lung-1
+                }
+            };
+        };        
+        
+     
+            
+            
+        
+        
+        $(".contenutoCentral").on('click','.classDroni',function(){
+            window.DroneSelezionato=$(this).get(0).id
+            if(window.precDrone){
+                $(window.precDrone).toggleClass("active");
+            }
+            window.precDrone=this
+            $(this).toggleClass("active");
+        });
+        
+
+        
+        $(".classPiantagioni").click(function(){
+            window.PiantagioneSelezionata = $(this).get(0).id
+            if(window.prec){
+                $(window.prec).toggleClass("active");
+            }
+            window.prec=this;
+            if(window.nome){
+                map.removeLayer(window.nome);
+                map.removeSource(window.nome);
+            }
+            $(this).toggleClass("active")
+            window.nome= $(this).get(0).id
+            window.piante = JSON.parse(storage.getItem("piantagioni"));
+                for(x of piante){
+                    
+                   if( nome == x[0]){
+                        
+                        coordinate = new Array;
+                        a=new Array;
+                        x.pop()
+                        x.pop()
+                        for(y in x){
+                            
+                           if(typeof(x[y])=="number"){
+                                
+                                if(y % 2 == 0){
+                                    a = new Array;
+                                    
+                                    a[a.length]= x[y];
+                                   
+                                }else{
+                                    a[a.length]= x[y];
+                                    coordinate[coordinate.length]=a;
+                                }
+                            }
+                            
+                        }
+                        
+                    } 
+                }
+                window.map.addSource(nome, {
+                    'type': 'geojson',
+                    'data': {
+                    'type': 'Feature',
+                    'geometry': {
+                    'type': 'Polygon',
+                    'coordinates': [
+                    
+                        coordinate
+                    
+                    ]
+                    }
+                    }
+                    });
+                    map.addLayer({
+                    'id': nome,
+                    'type': 'fill',
+                    'source': nome,
+                    'layout': {},
+                    'paint': {
+                    'fill-color': '#088',
+                    'fill-opacity': 0.8
+                    }
+            });
+           
+
+            map.flyTo({
+                
+                center: coordinate[0],
+                zoom: 13,
+                essential:true
+
+            });
+      
+            });
+        
+        
+         $(".iconsPlus").on('click','#launch',function(){
+            window.dataSelezionata = $("#tipo").val()
+            $(".iconsPlus").empty()
+            $(".central.p").html("Storico Analisi - Selezione indice")
+            $(".contenutoCentral").empty();
+            $(".contenutoCentral").html(
+                     " <div class =\"row rjustify-content-center\">"+
+                                "<div class=\"col colonna\">"+
+                                   " <a >"+
+                                       " <div id=\"ndvi\" class =\"classIndice box mini\">"+
+                                           " <p>NDVI</p>"+
+                                        "</div>"+
+                                     "</a>"+
+                                "</div>"+
+                                "<div class=\"col colonna\">"+
+                                   " <a >"+
+                                       " <div id=\"NDMI\" class =\"classIndice box mini\">"+
+                                        " <p>NDMI</p>"+
+                                        "</div>"+
+                                     "</a>"+
+                                "</div></div>"
+
+                        );
+
+         });
+        
+         $("#modalMissioneAvvia").on("click",function(){
+             console.log(this)
+             $("#launch").get(0).id="arrestaMissione"
+             $("#arrestaMissione").html("<p style=\"color:red;\">Arresta Missione</p>")
+            for (x of droni){
+                
+                if( x[0] == window.DroneSelezionato ){
+                   console.log(x[0])
+                   batteria=x[2]
+                    
+                   if(batteria>80 && batteria <=100){
+                       window.stringa= "<i id=\"statoBatteria\" class=\"fas fa-battery-full\" style=\"color: green;margin-left: 3vw;margin-top:6px;\"></i>"
+                    }else if(batteria >50 && batteria  <= 80){
+                       window.stringa= "<i id=\"statoBatteria\" class=\"fas fa-battery-three-quarters\" style=\"color: green;margin-left: 3vw;margin-top:6px;\"></i>"
+                   
+                   }else if(batteria>25  && batteria <=50){
+                       window.stringa= "<i id=\"statoBatteria\" class=\"fas fa-battery-half\" style=\"color: orange;margin-left: 3vw;margin-top:6px;\"></i>"
+                   }else if(batteria >15 && batteria <=25){
+                       window.stringa= "<i id=\"statoBatteria\" class=\"fas fa-battery-quarter\" style=\"color: red;margin-left: 3vw;margin-top:6px;\"></i>"
+                   }else if(batteria <=15 ){
+                       window.stringa= "<i id=\"statoBatteria\" class=\"fas fa-battery-empty\" style=\"color: red;margin-left: 3vw;margin-top:6px;\"></i>"
+                   }
+                }
+            }
+            
+            $("#modalRiepilogo").modal("toggle")
+            $(".contenutoCentral").empty();
+            $(".central.p").html("Stato Missione")
+            $(".contenutoCentral").html(
+                "<p style=\"color:#049372;\">Info Drone</p>"
+                +" <div id=\"boxInfo\" class=\"boxInfo\">"
+                    +" <div class=\"row\" style=\"padding-top:10px;\"> "
+                        +"<p style=\"color:black;margin-left:3vw;\">"+ window.DroneSelezionato+"</p>"
+                        +window.stringa
+                    +"</div>"
+                    //----------------------------- riga 2 latitude
+                    +" <div class=\"row\" style=\"padding-top:10px;\"> "
+                        +"<p style=\"color:black;margin-left:3vw;\">Latitudine: </p>"
+                        +"<p style=\"color:black;margin-left:10px\" class=\"latitudeValue\"></p>"
+                    +"</div>"
+                    //----------------------------- riga 3 longitude
+                    +" <div class=\"row\" style=\"padding-top:10px;\"> "
+                        +"<p style=\"color:black;margin-left:3vw;\">Longitudine: </p>"
+                        +"<p style=\"color:black;margin-left:10px\" class=\"longitudeValue\"></p>"
+                    +"</div>"
+                    //----------------------------- riga 4 altitude
+                    +" <div class=\"row\" style=\"padding-top:10px;\"> "
+                        +"<p style=\"color:black;margin-left:3vw;\">Altitudine: </p>"
+                        +"<p style=\"color:black;margin-left:10px\">100m</p>"
+                    +"</div>"
+                  
+               +"</div>"
+            );
+             map.removeLayer("route")
+                map.removeSource("route");
+               
+                var route = {
+                'type': 'FeatureCollection',
+                'features': [
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'LineString',
+                            'coordinates': points
+                        }
+                    }
+                ]}
+            // A single point that animates along the route.
+            // Coordinates are initially set to origin.
+            var point = {
+                'type': 'FeatureCollection',
+                'features': [
+                    {
+                        'type': 'Feature',
+                        'properties': {},
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': points
+                        }
+                    }
+                ]
+            };
+
+        // Calculate the distance in kilometers between route start/end point.
+        var lineDistance = turf.lineDistance(route.features[0], 'kilometers');
+
+        var arc = [];
+
+        // Number of steps to use in the arc and animation, more steps means
+        // a smoother arc and animation, but too many steps will result in a
+        // low frame rate
+        var steps = 5000;
+
+        // Draw an arc between the `origin` & `destination` of the two points
+        for (var i = 0; i < lineDistance; i += lineDistance / steps) {
+            var segment = turf.along(route.features[0], i, 'kilometers');
+            arc.push(segment.geometry.coordinates);
+        }
+
+        // Update the route with calculated arc coordinates
+        route.features[0].geometry.coordinates = arc;
+
+        // Used to increment the value of the point measurement against the route.
+        counter = 0;
+
+        
+            // Add a source and layer displaying a point which will be animated in a circle.
+            map.addSource('route', {
+                'type': 'geojson',
+                'data': route
+            });
+
+            map.addSource('point', {
+                'type': 'geojson',
+                'data': point
+            });
+
+            map.addLayer({
+                'id': 'route',
+                'source': 'route',
+                'type': 'line',
+                'paint': {
+                    'line-width': 2,
+                    'line-color': '#007cbf'
+                }
+            });
+
+            map.addLayer({
+                'id': 'point',
+                'source': 'point',
+                'type': 'symbol',
+                'layout': {
+                    'icon-image': 'airport-15',
+                    'icon-rotate': ['get', 'bearing'],
+                    'icon-rotation-alignment': 'map',
+                    'icon-allow-overlap': true,
+                    'icon-ignore-placement': true
+                }
+            });
+           
+             function  animate() {
+                
+                // Update point geometry to a new position based on counter denoting
+                // the index to access the arc.
+                point.features[0].geometry.coordinates =
+                    route.features[0].geometry.coordinates[counter];
+
+                // Calculate the bearing to ensure the icon is rotated to match the route arc
+                // The bearing is calculate between the current point and the next point, except
+                // at the end of the arc use the previous point and the current point
+                point.features[0].properties.bearing = turf.bearing(
+                    turf.point(
+                        route.features[0].geometry.coordinates[
+                            counter >= steps ? counter - 1 : counter
+                        ]
+                    ),
+                    turf.point(
+                        route.features[0].geometry.coordinates[
+                            counter >= steps ? counter : counter + 1
+                        ]
+                    )
+                );
+                
+                // Update the source with this new data.
+                map.getSource('point').setData(point);
+                $(".longitudeValue").html( point.features[0].geometry.coordinates[0])
+                
+                $(".latitudeValue").html( point.features[0].geometry.coordinates[1])
+                
+                window.puntoAttualeDrone=[point.features[0].geometry.coordinates[0],point.features[0].geometry.coordinates[1]]
+                // Request the next frame of animation so long the end has not been reached.
+                if (counter < steps) {
+                    requestAnimationFrame(animate);
+                }
+                
+                
+                counter = counter + 1;
+                counter == 2500 ? changeBattery():null;
+                counter == 4700 ? changeBattery():null;
+                counter >= steps ? returnHomeEndMission():null;
+               
+                counter == 4999 ? returnHomeEndMission():null;
+            }
+
+        
+
+            // Start the animation.
+            
+          
+                animate(counter);
+                
+            
+            });
+         
+            
+        $(".contenutoCentral").on('click','.classIndice',function(){
+           
+        window.indiceSelezionato = $(this).get(0).id
+        if(window.prec){
+            $(window.prec).toggleClass("active");
+        }
+        window.prec=this;
+        $(this).toggleClass("active")
+        
+        if(window.indiceSelezionato=="ndvi"){
+            $(".boxImage").remove()
+            $("#map").html("<img src=\"./ndvi.png\"  width=\"814.075\" height=\"678.6\">")
+            $(".contenutoCentral").append( "<div class=\"boxImage\">"+
+                "<img src=\"./valorindvi.png\"  width=\"205.5\" height=\"162.5\" style=border-radius:25px>"+
+                " </div>")
+            
+        }else{
+            $("#map").html("<img src=\"./ndmi.png\"  width=\"814.075\" height=\"678.6\">")
+        }
+
+        });
+        $("#nextScan").click(function(){
+            
+            if(window.PiantagioneSelezionata==undefined){
+                    alert("Selezionare prima una piantagione")
+                    
+            }  else{ 
+                
+               
+                $(".iconsPlus").empty();
+                $(".iconsPlus").append(" <div id=\"launch\" class=\"input invia avanti \">"+
+                                "<p class=\"launch\">launch</p>"+
+                                                            "</div>");
+                        $(".contenutoCentral").empty()
+                $(".avanti").html("<p class=\"launch\">Avanti</p>")
+                $(".central.p").html("Storico Analisi - Seleziona Data")
+                $(".contenutoCentral").html(
+                    "<div class =\"row justify-content-start\">"+
+                                       
+                                        
+                                        "<select id=\"tipo\" name=\"data\">"+
+                                            " <option value=\"25/05/2020\">25/05/2020</option>"+
+                                            "<option value=\"28/05/2020\">28/05/2020</option>"+
+                                            "<option value=\"30/05/2020\">30/05/2020</option>"+
+                                            "<option value=\"08/06/2020\">08/06/2020</option>"+
+                                            "</select>"+
+                                                                                        
+                                        
+                                        "</div>");
+
+        
+            
+            }                         
+        });   
+               
+          
+     
+
+        $(".boxPlus").click(function(){
+            if(window.nome){
+                map.removeLayer(window.nome);
+                map.removeSource(window.nome);
+            }
+            
+                map.flyTo({
+                
+                center: [window.longitude,window.latitude],
+                zoom: 13,
+                essential:true
+
+            });
+
+            window.nome= $(this).get(0).id
+            $(".contenutoCentral").empty();
+            $(".boxPlus").remove();
+            $(".contenutoCentral").append("<div class =\"row justify-content-start\">"+
+                                        "<div class=\"input\">"+
+                                        " <input id=\"nomePiantagione\" type=\"text\" placeholder=\"Nome Piantagione\"></div>"+
+                                        "<p class=\"tipo\">Tipo Piantagione</p>"+
+                                        "<select id=\"tipo\" name=\"tipo piantagioni\">"+
+                                            " <option value=\"patate\">Patate</option>"+
+                                            "<option value=\"pomodori\">Pomodori</option>"+
+                                            "<option value=\"grano\">Grano</option>"+
+                                            "<option value=\"zucchine\">Zucchine</option>"+
+                                            "</select>"+
+                                                                                        
+                                        
+                                        "</div>");
+
+             document.getElementById( "savePiantagione" ).style.visibility = "visible";
+
+        });
+            
+            
+        $(".m_button.active").on('click', function () {
+            $('#sidebar').toggleClass('active');
+            $('#sidebarCollapse').toggleClass('sideActive');
+            $('#sidebarCollapse').removeClass('notActive');
+            $('#menu').toggleClass('active');
+            $('#central').toggleClass('active');
+            $('#map').toggleClass('active');
+            $('#content').toggleClass('active');
+            
+            $('.m_button').toggleClass("active"); 
+            $('.m_button').removeClass("notActive"); 
+            $('.linee').toggleClass("active"); 
+            $(".mapboxgl-canvas" ).width("100%");
+            $("p.piantagioni" ).toggleClass("active");
+        });
+
+        $(".m_button.notActive").on('click', function () {
+            $('.linee').removeClass("active");
+            $('.m_button').removeClass("active"); 
+            $('.m_button').toggleClass("notActive"); 
+            
+        });
+       
+        /*geolocation*/
+        
+        
+        let promise = new Promise((resolve,reject)=>{
+            if(!session.getItem("latitude")){
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(showPosition);
+                } else{
+                    reject("error")
+                }
+                function showPosition(position) {
+                
+                    session.setItem("longitude",JSON.stringify(position.coords.longitude));
+                    session.setItem("latitude",JSON.stringify(position.coords.latitude));
+
+                    window.latitude = position.coords.latitude;
+                    window.longitude = position.coords.longitude;  
+                    resolve("ok");
+                }
+            }else{
+                
+                window.latitude=JSON.parse(session.getItem("latitude"))
+                window.longitude=JSON.parse(session.getItem("longitude"))
+                console.log(JSON.parse(session.getItem("latitude")))
+                resolve("ok");
+            }
+        });
+        
+        
+        /*maps*/
+
+        
+        promise.then((message) => createMap()).catch((message) => console.log(message))  ;        
+        
+        function createMap(){
+          
+
+            const light ="mapbox://styles/mapbox/streets-v10"
+            const AIRMAP_API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVkZW50aWFsX2lkIjoiY3JlZGVudGlhbHx4dkRNcUdnVFpxOHFhQmZ5VzJaOVp0MDM1d3FRIiwiYXBwbGljYXRpb25faWQiOiJhcHBsaWNhdGlvbnxBWDZrbHozUzk5a0pseFRnV1pnWDNoWlJnSmdsIiwib3JnYW5pemF0aW9uX2lkIjoiZGV2ZWxvcGVyfDZ4eHp2d0VIRDk5eTJkVTI4ZUswTUlkR294ZzgiLCJpYXQiOjE1OTA5OTY5Mjl9.nlXJKvhnT5MGE1CacLrXZ17U00qvY9cxKOK2mTQcMDE'
+            const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoiY2FybG9sZXJybyIsImEiOiJjazlzYXZ6bWMwMGduM2dvZDhxZHA4aXZlIn0.0DJMFhyS0-ywYC17SYll2A'
+            
+                console.log(window.longitude+" " +window.latitude)
+                if (AIRMAP_API_KEY && MAPBOX_ACCESS_TOKEN) {
+                    mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN
+                    
+                    window.map = new mapboxgl.Map({
+                        container: 'map',
+                        style: light,
+                        center: [window.longitude,window.latitude],
+                        zoom:8
+                    })
+                    
+                    const config = {
+                        "airmap": {
+                            "api_key": AIRMAP_API_KEY
+                        },
+                        "auth0": {
+                            "client_id": "",
+                            "callback_url": ""
+                        },
+                        "mapbox": {
+                            "access_token": MAPBOX_ACCESS_TOKEN
+                        }
+                    }
+                    const options = {
+                        preferredRulesets: [
+                            'usa_part_107',
+                            'deu_rules_waiver'
+                        ],
+                        overrideRulesets: [
+                            // 'usa_part_107'
+                        ],
+                        enableRecommendedRulesets: true,
+                        theme: 'light'
+                        /* refer to the docs for a comprehensive list of options */
+                    }
+                   
+                    plugin = new AirMap.ContextualAirspacePlugin(config, options);
+                    map.addControl(plugin, 'top-right');
+                    map.addControl(new mapboxgl.NavigationControl(),"top-left");
+                    var marker = new mapboxgl.Marker()
+                    .setLngLat([window.longitude,window.latitude])
+                    .addTo(map); // add the marker to the map
+                     window.draw = new MapboxDraw({
+                        displayControlsDefault: false,
+                        controls: {
+                        polygon: true,
+                        trash: true
+                        }
+                    });
+                    map.addControl(draw);
+                    
+                    map.on('draw.create', updateArea);
+                    map.on('draw.delete', updateArea);
+                    map.on('draw.update', updateArea);
+                    
+                    // Example for how ruleset changes are surfaced to the consuming application.
+                    plugin.on('jurisdictionChange', (data) => console.log('jurisdictionChange',data))
+                    plugin.on('airspaceLayerClick', (data) => {
+                        window.space=data
+                        console.log('airspaceLayerClick', data)
+                        
+                        })
+                        map.on('click', 'airmap|special_use_airspace|overlay|fill|0|ita_airmap_rules', function(e) {
+                            new mapboxgl.Popup()
+                            .setLngLat(e.lngLat)
+                            .setHTML(e.features[0].properties.name)
+                            .addTo(map);
+                        });    
+                        map.on('click',  "airmap|airport|background|fill|0|ita_airmap_rules"   , function(e) {
+                            new mapboxgl.Popup()
+                            .setLngLat(e.lngLat)
+                            .setHTML(e.features[0].properties.name)
+                            .addTo(map);
+                        });    
+                        map.on('click',  "airmap|controlled_airspace|overlay|fill|2|ita_airmap_rules"   , function(e) {
+                            new mapboxgl.Popup()
+                            .setLngLat(e.lngLat)
+                            .setHTML(e.features[0].properties.name)
+                            .addTo(map);
+                        });   
+                        map.on('click',"airmap|city|overlay|fill|property_boundary|city_7axylo_drone_rules" , function(e) {
+                            new mapboxgl.Popup()
+                            .setLngLat(e.lngLat)
+                            .setHTML(e.features[0].properties.name) 
+                            .addTo(map);
+                        });    
+                        map.on('click',nome, function(e) {
+                            new mapboxgl.Popup()
+                            .setLngLat(e.lngLat)
+                            .setHTML(nome) 
+                            .addTo(map);
+                        });     
+                      
+                       /* map.on('mousemove', function(e) {
+                            document.getElementById('info').innerHTML =
+                            // e.point is the x, y coordinates of the mousemove event relative
+                            // to the top-left corner of the map
+                            JSON.stringify(e.point) +
+                            '<br />' +
+                            // e.lngLat is the longitude, latitude geographical position of the event
+                            JSON.stringify(e.lngLat.wrap());
+                            console.log(e)
+                            });*/
+                      
+                    // Example for how the consuming app can call the plugin for jurisdictions or selected rulesets.
+                    setTimeout(() => {
+                        console.log({
+                            jurisdictions: plugin.getJurisdictions(),
+                            selectedRulelsets: plugin.getSelectedRulesets()
+                        })
+                    }, 5000)
+                } else {
+                    console.error(
+                        'Missing AIRMAP_API_KEY or MAPBOX_ACCESS_TOKEN. ' +
+                        'These are required for developing locally.\n\n' +
+                        'Please save these values in localStorage by entering the following in your browser console:\n\n' +
+                        'localStorage.setItem(\'AIRMAP_API_KEY\', \'<your_key>\');\n' +
+                        'localStorage.setItem(\'MAPBOX_ACCESS_TOKEN\', \'<your_token>\');\n\n'
+                    );
+                }
+                    /*map.on('load',function(){
+                        map.addSource(
+
+
+                        );
+                    });*/
+        };
+
+            function updateArea(e) {
+                window.data = window.draw.getAll();
+                
+                
+                if (data.features.length > 0) {
+                var area = turf.area(window.data);
+                // restrict to area to 2 decimal points
+                var rounded_area = Math.round(area * 100) / 100;
+                
+                } else {
+               
+                if (e.type !== 'draw.delete')
+                alert('Use the draw tools to draw a polygon!');
+                };
+            };
+           //function meteo
+           /* var data = null;
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.addEventListener("readystatechange", function () {
+            if (this.readyState === this.DONE) {
+                //console.log(JSON.parse(this.responseText));
+            }
+            });
+
+            xhr.open("GET", "https://api.airmap.com/advisory/v2/weather/?longitude="+window.longitude+"&latitude="+window.latitude+"");
+            xhr.setRequestHeader("accept", "application/json");
+            xhr.setRequestHeader("x-api-key", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVkZW50aWFsX2lkIjoiY3JlZGVudGlhbHx4dkRNcUdnVFpxOHFhQmZ5VzJaOVp0MDM1d3FRIiwiYXBwbGljYXRpb25faWQiOiJhcHBsaWNhdGlvbnxBWDZrbHozUzk5a0pseFRnV1pnWDNoWlJnSmdsIiwib3JnYW5pemF0aW9uX2lkIjoiZGV2ZWxvcGVyfDZ4eHp2d0VIRDk5eTJkVTI4ZUswTUlkR294ZzgiLCJpYXQiOjE1OTA5OTY5Mjl9.nlXJKvhnT5MGE1CacLrXZ17U00qvY9cxKOK2mTQcMDE");
+
+            xhr.send(data);*/
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+           
+
+           //function per ruleset
+            /*var data = "{\"geometry\":\"{   \\\"type\\\": \\\"Feature\\\",   \\\"geometry\\\": {     \\\"type\\\": \\\"Point\\\",     \\\"coordinates\\\":["+window.longitude+","+window.latitude+"]   },   \\\"properties\\\": {     \\\"name\\\": \\\"Italy\\\"   } }\"}";
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.addEventListener("readystatechange", function () {
+            if (this.readyState === this.DONE) {
+               //console.log(JSON.parse(this.responseText));
+            }
+            });
+
+            xhr.open("POST", "https://api.airmap.com/rules/v1/");
+            xhr.setRequestHeader("accept", "application/json");
+            xhr.setRequestHeader("x-api-key", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjcmVkZW50aWFsX2lkIjoiY3JlZGVudGlhbHx4dkRNcUdnVFpxOHFhQmZ5VzJaOVp0MDM1d3FRIiwiYXBwbGljYXRpb25faWQiOiJhcHBsaWNhdGlvbnxBWDZrbHozUzk5a0pseFRnV1pnWDNoWlJnSmdsIiwib3JnYW5pemF0aW9uX2lkIjoiZGV2ZWxvcGVyfDZ4eHp2d0VIRDk5eTJkVTI4ZUswTUlkR294ZzgiLCJpYXQiOjE1OTA5OTY5Mjl9.nlXJKvhnT5MGE1CacLrXZ17U00qvY9cxKOK2mTQcMDE");
+            xhr.setRequestHeader("content-type", "application/json");
+            
+            xhr.send(data);*/
+            /*//token from node server
+           
+            var xhr = new XMLHttpRequest();
+
+            xhr.addEventListener("readystatechange", function () {
+                if (this.readyState === this.DONE) {
+                    //console.log(JSON.parse(this.responseText));
+                }
+            });
+            xhr.open("GET", "/token");
+            xhr.send(true);
+             GEOJSON POLYGON
+            
+            {
+            "type": "Polygon",
+            "coordinates": [
+                [
+            [-118.49572420120239,
+                34.016330818691884
+            ],
+            [-118.49572420120239,
+                34.01732681740577
+            ],
+            [-118.494393825531,
+                34.01732681740577
+            ],
+            [-118.494393825531,
+                34.016330818691884
+            ],
+            [-118.49572420120239,
+                34.016330818691884
+            ]
+        ]
+    ]
+}
+               
+
+               {   "type": "Feature",   "geometry": 
+                {     "type": "Point",     "coordinates": [14.79288,40.772406]   },   "prop.erties": {     "name": "Italy"   } }*/
+    
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,209 @@
+
+<head>
+   
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script src="https://cdn.airmap.io/js/contextual-airspace/v1.0/airmap.contextual-airspace-plugin.min.js" async=false defer=false></script>       
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.0/mapbox-gl.js"></script>
+    <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.0/mapbox-gl.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.css" rel="stylesheet" />
+    
+    <!-- Bootstrap CSS CDN -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <!-- Our Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Scrollbar Custom CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
+    <script src="ejs.min.js"></script>
+    <script src="ejs.js"></script>
+    <script type="text/javascript" src="require.js"></script>
+
+    <!-- Font Awesome JS -->
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+        <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v3.0.11/turf.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.9/mapbox-gl-draw.js"></script>
+    <link
+    rel="stylesheet"
+    href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.0.9/mapbox-gl-draw.css"
+    type="text/css"
+    />
+   <style>
+       .fa-user{
+         
+         margin-left: 12px;
+        color:gray;
+        
+       }
+       .fa-lock{
+         
+         margin-left: 12px;
+        color:gray;
+        
+       }
+       body{
+           width: 100%;
+           height: 100%;
+           background: linear-gradient(318.32deg, #E0E5EA 0%, #E0E5EB 55%, #E0E5EC 100%);
+           
+       }
+       .container-fluid{
+           height: 100%;
+       }
+       .input{
+           margin: 15px;
+           height: 40px;
+           width: 15rem;
+        
+           border-radius: 20px;
+           box-shadow: 5px 5px 10px rgb(163,177,198,0.6), -5px -5px 10px    rgba(255,255,255, 0.5);
+           background-color:#E0E5EC;
+       }
+       .input:focus
+       {
+        box-shadow: 5px 5px 10px rgba(163, 177, 198, 0.6),
+        -5px -5px 10px rgba(255, 255, 255, 0.5),
+        inset 3px 3px 7px rgba(136, 165, 191, 0.48), 
+        inset -3px -3px 7px #FFFFFF;
+        background: linear-gradient(318.32deg, rgba(163, 177, 198, 0.1) 0%, rgba(163, 177, 198, 0.1) 55%, rgba(163, 177, 198, 0.25) 100%);
+       }
+       input{
+         height: 40px;
+           border: none;
+           outline: none;
+           border-radius: 20px;
+          background: none;
+        padding-left: 8px;
+        padding-right: 0px;
+        
+       }
+       input:focus{
+        box-shadow: 5px 5px 10px rgba(163, 177, 198, 0.6),
+        -5px -5px 10px rgba(255, 255, 255, 0.5),
+        inset 3px 3px 7px rgba(136, 165, 191, 0.48), 
+        inset -3px -3px 7px #FFFFFF;
+        background: linear-gradient(318.32deg, rgba(163, 177, 198, 0.1) 0%, rgba(163, 177, 198, 0.1) 55%, rgba(163, 177, 198, 0.25) 100%);
+       }
+       .contenuto{
+           margin-top: 10vh;
+       }
+       .titolo{
+           margin-top: 5vh;
+           color: #049372;
+           font-weight: 900;
+       }
+       p{
+           margin-top: 13px;
+           text-align: center;
+           color: #049372;
+           font-weight: 900;
+       }
+       .invia{
+          
+           width: 7vw;
+           height: 7vh;
+       }
+       .submit{
+           height: 7vh;
+           width: 7vw;
+           color: green;
+       }
+   </style>
+</head>
+
+<body>
+    
+ <div class="container-fluid">
+        <div class ="row justify-content-center">
+            
+                
+                <div class="col">
+                    <div id="central">
+                        <!--titolo-->
+                        <div class ="row justify-content-center">
+                               <p class="titolo"> Login</p>
+                              
+                        </div> 
+                        <div class="contenuto">
+                            <form action="./piantagioni.html" method="POST">
+                            <div class ="row justify-content-center">
+                                
+                                <div class="input">
+                                    <i class="fas fa-user"></i> 
+                                    <input type="text" placeholder="Username">
+                                </div>
+                                
+                            </div>
+                            <div class ="row justify-content-center">
+                                
+                                <div class="input">
+                                    <i class="fas fa-lock"></i>
+                                    <input type="password" placeholder="Password">
+                                </div>
+                                
+                            </div>
+                            <div class ="row justify-content-center">
+                                
+                                <div class="input invia">
+                                    <input type="submit" class="submit"value="Submit">
+                                </div>
+                                
+                            </div>
+                            </form>
+                        </div>
+                        <!--contenuto-->
+                        <div class="w-100 p-3"></div>
+                        <!--generazione automatica della lista delle piantagioni tramite node-->
+                        <!--riga 1-->
+                        <div class ="container-fluid ">
+                            
+                     </div>
+            </div>
+        </div>
+    </div>
+              
+  
+   
+
+        
+     
+
+    <!-- jQuery CDN - Slim version (=without AJAX) -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <!-- Popper.JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+    <!-- jQuery Custom Scroller CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script src="https://cdn.airmap.io/js/contextual-airspace/1.0.0/airmap.contextual-airspace-plugin.min.js"></script>
+
+       
+    <script> 
+    $(".m_button.active").on('click', function () {
+        $('#sidebar').toggleClass('active');
+        $('#sidebarCollapse').toggleClass('sideActive');
+        $('#sidebarCollapse').removeClass('notActive');
+        $('#menu').toggleClass('active');
+        $('#central').toggleClass('active');
+        $('#map').toggleClass('active');
+        $('#content').toggleClass('active');
+        
+        $('.m_button').toggleClass("active"); 
+        $('.m_button').removeClass("notActive"); 
+        $('.linee').toggleClass("active"); 
+    
+    });
+
+    $(".m_button.notActive").on('click', function () {
+        $('.linee').removeClass("active");
+        $('.m_button').removeClass("active"); 
+        $('.m_button').toggleClass("notActive"); 
+        
+    });
+</script>
+</body>
+</html>
